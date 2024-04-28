@@ -1,15 +1,10 @@
 import 'dart:async';
-import 'dart:js_interop_unsafe';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/display_score.dart';
 import 'package:flutter_application_1/model/topic.dart';
-import 'package:flutter_application_1/model/topic_preset.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-
-import 'display_score.dart';
-
 class NewPage extends StatefulWidget {
   final Topic topicList;
   const NewPage(this.topicList, {super.key});
@@ -23,20 +18,32 @@ class NewPageState extends State<NewPage> {
 
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
-
+  Timer? _timer;
   Color bgcolor = Colors.blueAccent;
-
+  int _remainingSeconds = 10;
   var i = 0;
+  String deviceType = ''; 
   @override
   void initState() {
-
-    if (_accelerometerValues.isNotEmpty) {
       SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    }
 
+    
+
+    const oneSecond = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSecond, (Timer timer) {
+      if (_remainingSeconds <= 0) {
+        setState(() {
+          timer.cancel();
+        });
+      } else {
+        setState(() {
+          _remainingSeconds--;
+        });
+      }
+    });
 
     super.initState();
     // ignore: deprecated_member_use
@@ -48,36 +55,47 @@ class NewPageState extends State<NewPage> {
     });
   }
 
-  Widget _pass(iterList, value){
-    _bgcolor('red');
+  Widget _pass(iterList, valueRec) {
+    Future.delayed(Durations.extralong4).then((value) {
+          _bgcolor('red');
+    print("pass");
     i++;
-    _scoreUpdate(iterList, value);
-    return const Text('Pass');
+    _scoreUpdate(iterList, valueRec);
+    });
+      print(DateTime.now());
+      print(iterList);
+      return const Text("Pass");
   }
 
-  Widget _match(iterList, value){
-    _bgcolor('green');
-    i++;
-    _scoreUpdate(iterList, value);
+  Widget _match(iterList, valueRec)  {
+    Future.delayed(Durations.extralong4).then((value) {
+      _bgcolor('green');
+      i++;
+      _scoreUpdate(iterList, valueRec);
+    });
+
+      print(DateTime.now());
+      print(iterList);
     return const Text('Match');
   }
 
-  Widget _next(){
-    _bgcolor('blue');
-    return const Text('No data available', style: TextStyle(fontSize: 16));
-  }
+  // Widget _next(){
+  //   _bgcolor('blue');
+  //   return const Text('No data available', style: TextStyle(fontSize: 16));
+  // }
 
   @override
   void dispose() {
     // Cancel the accelerometer event subscription to prevent memory leaks
     _accelerometerSubscription.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 void _bgcolor(value){
   if(value == 'red'){
     setState(() {
       bgcolor = Colors.redAccent;
-    }); 
+    });
   }else if (value == 'green'){
     setState(() {
       bgcolor = Colors.greenAccent;
@@ -88,7 +106,7 @@ void _bgcolor(value){
     });
   }
 }
-String deviceType = ''; 
+
 String checkDeviceType(DeviceInfoPlugin deviceInfom){
   deviceInfom.deviceInfo.then((value){
       if (value.data.keys.contains("utsname.sysname")){
@@ -102,8 +120,8 @@ String checkDeviceType(DeviceInfoPlugin deviceInfom){
 
   @override
   Widget build(BuildContext context) {
-    var Topic = widget.topicList;
-    var iterList = Topic.topicList;
+    var topic = widget.topicList;
+    var iterList = topic.topicList;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -113,46 +131,57 @@ String checkDeviceType(DeviceInfoPlugin deviceInfom){
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if ( i < iterList.length)
-                SizedBox(
-                  height: 20,
-                  child: Text(iterList[i].toString()),
-                )
+              if ( i < iterList.length && _remainingSeconds != 0)
+                Center(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 20,
+                        child: Text('$_remainingSeconds'.toString()),
+                      ),
+                      SizedBox(
+                        height: 20,
+                        child: Text(iterList[i].keys.first.toString()),
+                      )
+                    ],
+                  ),
+                ),
+                if (checkDeviceType(deviceInfo) == '')  
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: "Pass",
+                        child: const Text("Pass"),
+                        onPressed: (){
+                        setState(() {
+                          _pass(iterList[i], 0);
+                        });
+                      }),
+                      FloatingActionButton(
+                        heroTag: "Match",
+                        child: const Text("Match"),
+                        onPressed: (){
+                          setState(() {
+                            _match(iterList[i], 1);
+                          });
+                      }),
+                    ],
+                  )
+                else
+                  if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z > 3 && i < iterList.length && _remainingSeconds != 0)
+                    _pass(iterList[i], 0)
+                  else if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z <-5 && i < iterList.length && _remainingSeconds != 0)
+                    _match(iterList[i], 1)
               else
                 FloatingActionButton(
                   onPressed: () {
                   Navigator.push(
                     context, 
-                    MaterialPageRoute(builder: (context)=> DisplayScore(Topic)));
+                    MaterialPageRoute(builder: (context)=> DisplayScore(topic)));
                   },
-                  child: const Text('Got To Scores')),
-              if (checkDeviceType(deviceInfo) == '')  
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    FloatingActionButton(
-                      heroTag: "Pass",
-                      child: const Text("Pass"),
-                      onPressed: (){
-                      setState(() {
-                        _pass(iterList[i], 0);
-                      });
-                    }),
-                    FloatingActionButton(
-                      heroTag: "Match",
-                      child: const Text("Match"),
-                      onPressed: (){
-                        setState(() {
-                          _match(iterList[i], 1);
-                        });
-                    }),
-                  ],
-                )
-              else
-                if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z > 3)
-                  _pass(iterList[i], 0)
-                else if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z <-5)
-                  _match(iterList[i], 1)
+                  child: const Text('Got To Scores')
+                ),
             ],
           ),
         ),
@@ -169,5 +198,4 @@ void _scoreUpdate(Map iterList, int recvalue) {
         iterList.update(element, (value) => recvalue);
       }
     }
-  print(iterList);
 }
