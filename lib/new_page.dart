@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +60,6 @@ class NewPageState extends State<NewPage> {
     _bgcolor('red');
     i++;
     _scoreUpdate(iterList, valueRec);
-    print(iterList);
     Future.delayed(Durations.long4).then((value) => _bgcolor("blue"));
     return const Text("Pass");
   }
@@ -68,15 +68,10 @@ class NewPageState extends State<NewPage> {
     _bgcolor('green');
     i++;
     _scoreUpdate(iterList, valueRec);
-    print(iterList);
     Future.delayed(Durations.long4).then((value) => _bgcolor("blue"));
     return const Text('Match');
   }
 
-  Widget _next(){
-    _bgcolor('blue');
-    return const Text('No data available', style: TextStyle(fontSize: 16));
-  }
 
   @override
   void dispose() {

@@ -1,7 +1,7 @@
 import "package:flutter_application_1/model/topic.dart";
 
-var sample = Topic("Sample", ['A','B','Stack']);
-var sampleA = Topic("Sample_A", ['A','B','C']);
+var sample = Topic("Hollywood Movies", ['A','B','Stack']);
+var sampleA = Topic("Bollywood Movies", ['A','B','C']);
 var custom = Topic ("Custom",[]);
 
 List<Topic> topicLists = [
