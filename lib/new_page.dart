@@ -56,33 +56,27 @@ class NewPageState extends State<NewPage> {
   }
 
   Widget _pass(iterList, valueRec) {
-    Future.delayed(Durations.extralong4).then((value) {
-          _bgcolor('red');
-    print("pass");
+    _bgcolor('red');
     i++;
     _scoreUpdate(iterList, valueRec);
-    });
-      print(DateTime.now());
-      print(iterList);
-      return const Text("Pass");
+    print(iterList);
+    Future.delayed(Durations.long4).then((value) => _bgcolor("blue"));
+    return const Text("Pass");
   }
 
   Widget _match(iterList, valueRec)  {
-    Future.delayed(Durations.extralong4).then((value) {
-      _bgcolor('green');
-      i++;
-      _scoreUpdate(iterList, valueRec);
-    });
-
-      print(DateTime.now());
-      print(iterList);
+    _bgcolor('green');
+    i++;
+    _scoreUpdate(iterList, valueRec);
+    print(iterList);
+    Future.delayed(Durations.long4).then((value) => _bgcolor("blue"));
     return const Text('Match');
   }
 
-  // Widget _next(){
-  //   _bgcolor('blue');
-  //   return const Text('No data available', style: TextStyle(fontSize: 16));
-  // }
+  Widget _next(){
+    _bgcolor('blue');
+    return const Text('No data available', style: TextStyle(fontSize: 16));
+  }
 
   @override
   void dispose() {
@@ -169,19 +163,19 @@ String checkDeviceType(DeviceInfoPlugin deviceInfom){
                     ],
                   )
                 else
-                  if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z > 3 && i < iterList.length && _remainingSeconds != 0)
+                  if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z > 6 && i < iterList.length && _remainingSeconds != 0)
                     _pass(iterList[i], 0)
-                  else if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z <-5 && i < iterList.length && _remainingSeconds != 0)
+                  else if (_accelerometerValues.isNotEmpty && _accelerometerValues[0].z <-6 && i < iterList.length && _remainingSeconds != 0)
                     _match(iterList[i], 1)
-              else
-                FloatingActionButton(
-                  onPressed: () {
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context)=> DisplayScore(topic)));
-                  },
-                  child: const Text('Got To Scores')
-                ),
+                  else
+                    FloatingActionButton(
+                      onPressed: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context)=> DisplayScore(topic)));
+                      },
+                      child: const Text('Got To Scores')
+                    ),
             ],
           ),
         ),

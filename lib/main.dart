@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/create_custom.dart';
 import 'package:flutter_application_1/model/topic_preset.dart';
 import 'package:flutter_application_1/new_page.dart';
 
@@ -46,16 +47,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ListView.builder(
         itemCount: topicLists.length ,
         itemBuilder: (context, index){
-          // if (index >= topicLists.length){
-          //   return ListTile(
-          //     onTap: () {
-          //     Navigator.push(
-          //       context, 
-          //       MaterialPageRoute(builder: (context)=> const CreateCustom()));
-          //     },
-          //     title: const Text("Custom"),
-          //   );
-          // }
+          if (topicLists[index].topicName == "Custom"){
+            return ListTile(
+              onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context)=> CreateCustom(topicLists[index])));
+              },
+              title: Text(topicLists[index].topicName),
+            );
+          }
           return ListTile(
             onTap: () {
             Navigator.push(
